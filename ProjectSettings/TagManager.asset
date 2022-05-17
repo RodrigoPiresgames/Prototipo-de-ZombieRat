@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy
+  - HidyHole
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - floor
+  - player
+  - background
+  - enemies
+  - interactables
+  - hitboxes
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Background
+    uniqueID: 3081215329
+    locked: 0
+  - name: Interactables
+    uniqueID: 532167471
+    locked: 0
+  - name: Decorations
+    uniqueID: 1839020145
+    locked: 0
+  - name: Player
+    uniqueID: 4264638567
+    locked: 0
+  - name: Floor
+    uniqueID: 4026859531
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Enemies
+    uniqueID: 3418647513
+    locked: 0
