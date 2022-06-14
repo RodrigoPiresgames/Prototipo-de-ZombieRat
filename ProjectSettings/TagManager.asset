@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - HidyHole
+  - Floor
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - enemies
   - interactables
   - hitboxes
-  - 
+  - projectile
   - 
   - 
   - 
@@ -43,21 +44,21 @@ TagManager:
   - name: Background
     uniqueID: 3081215329
     locked: 0
+  - name: Floor
+    uniqueID: 4026859531
+    locked: 0
   - name: Interactables
     uniqueID: 532167471
     locked: 0
-  - name: Decorations
-    uniqueID: 1839020145
+  - name: Prompts
+    uniqueID: 2004240205
     locked: 0
   - name: Player
     uniqueID: 4264638567
     locked: 0
-  - name: Floor
-    uniqueID: 4026859531
+  - name: Enemies
+    uniqueID: 3418647513
     locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Enemies
-    uniqueID: 3418647513
     locked: 0

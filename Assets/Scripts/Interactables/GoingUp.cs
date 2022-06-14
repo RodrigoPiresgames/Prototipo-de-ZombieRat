@@ -22,14 +22,20 @@ public class GoingUp : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collider)
     {
         var player = collider.attachedRigidbody.GetComponent<Player>();
-        canDo = true;
-        player.UpdateGoUp(canDo);
+        if (player)
+        {
+            canDo = true;
+            player.UpdateGoUp(canDo);
+        }
     }
     private void OnTriggerExit2D(Collider2D collider)
     {
         canDo = false;
         var player = collider.attachedRigidbody.GetComponent<Player>();
-        player.UpdateGoUp(canDo);
+        if (player)
+        {
+            player.UpdateGoUp(canDo);
+        }
     }
 
 }

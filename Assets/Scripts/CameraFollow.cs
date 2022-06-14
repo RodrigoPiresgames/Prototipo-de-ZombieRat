@@ -10,7 +10,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Rect       cameraLimits;
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (target != null)
         {

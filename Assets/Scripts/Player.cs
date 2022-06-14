@@ -19,6 +19,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float      knockbackDuration = 0.5f;
     [SerializeField] private float      deadTime = 3.0f;
     [SerializeField] private float      levelHeight = 10.0f;
+    [SerializeField] private GameObject energyballPrefab;
+    [SerializeField] private float      energyballBallSpawnXOffset = 10.0f;
+    [SerializeField] private float      energyballBallSpawnYOffset = 10.0f;
+    [SerializeField] private float      firecooldownTime = 2.0f;
 
     private Transform       tf;
     private Vector3         currentPosition;
@@ -36,6 +40,10 @@ public class Player : MonoBehaviour
     private bool            isHidden = false;
     private bool            canHide = false;
     private bool            canGoUp = false;
+    private bool            canFire = true;
+    private Vector3         energyballSpawn;
+    private float           firecooldownTimer = 0;
+
 
     private bool isInvulnerable
     {
@@ -47,12 +55,11 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        //Debug.Log($"{name}: Started Player");
 
         rb = GetComponent<Rigidbody2D>();
         tf = GetComponent<Transform>();
         playerCol = GetComponent<Collider2D>();
-        //anim = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         health = maxHealth;
     }
@@ -63,6 +70,11 @@ public class Player : MonoBehaviour
         Vector3 currentPosition = tf.position;
         bool    onGround = IsOnGround();
 
+        if(onGround)
+        {
+            anim.SetBool("Jumping", false);
+        }
+
         if (deadTimer > 0)
         {
             deadTimer -= Time.deltaTime;
@@ -71,6 +83,27 @@ public class Player : MonoBehaviour
             {
                 Destroy(gameObject);
                 return;
+            }
+        }
+
+        if (firecooldownTimer > 0)
+        {
+            firecooldownTimer -= Time.deltaTime;
+
+            if (firecooldownTimer <= 0)
+            {
+                canFire = true;
+            }
+        }
+
+
+        if (Input.GetButtonDown("Fire"))
+        {
+            if (canFire == true)
+            {
+                anim.SetTrigger("Fire");
+                canFire = false;
+                firecooldownTimer = firecooldownTime;
             }
         }
 
@@ -120,6 +153,7 @@ public class Player : MonoBehaviour
             {
                 if (onGround)
                 {
+                    anim.SetBool("Jumping", true);
                     rb.gravityScale = 1.0f;
                     currentVelocity.y = jumpSpeed;
                     jumpTime = Time.time;
@@ -149,10 +183,6 @@ public class Player : MonoBehaviour
                 transform.rotation = Quaternion.Euler(0, 180, 0);
             }
         }
-
-        //anim.SetFloat("AbsSpeedX", Mathf.Abs(currentVelocity.x));
-        //anim.SetFloat("SpeedY", currentVelocity.y);
-        //anim.SetBool("onGround", onGround);
 
         if (invulnerabilityTimer > 0)
         {
@@ -193,7 +223,7 @@ public class Player : MonoBehaviour
 
     public void DealDamage(int damage, Transform sourceDamageTransform)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable || health <= 0) return;
 
         health = health - damage;
 
@@ -201,15 +231,10 @@ public class Player : MonoBehaviour
 
         if (health <= 0)
         {
-            //anim.SetTrigger("Dead");
+            anim.SetTrigger("Die");
 
-            rb.velocity = new Vector2(0, jumpSpeed * 2);
+            rb.velocity = new Vector2(0, jumpSpeed );
 
-            deadTimer = deadTime;
-
-            Destroy(gameObject);
-
-            //SceneManager.LoadScene("MainMenu");
         }
         else
         {
@@ -217,13 +242,8 @@ public class Player : MonoBehaviour
 
             if (sourceDamageTransform != null)
             {
-                //anim.SetTrigger("Hurt");
 
                 Vector2 direction = new Vector2(0.0f, 1.0f);
-
-                //This was always commented so don't change it
-                //if (transform.position.x < sourceDamageTransform.position.x) direction.x = -1.0f;
-                //else direction.x = 1.0f;
 
                 direction.x = Mathf.Sign(transform.position.x - sourceDamageTransform.position.x);
 
@@ -237,11 +257,24 @@ public class Player : MonoBehaviour
         return jumpSpeed;
     }
 
+     public void AnimationFire ()
+    {
+        energyballSpawn = new Vector3(transform.position.x - energyballBallSpawnXOffset, transform.position.y - energyballBallSpawnYOffset);
+        Instantiate(energyballPrefab, energyballSpawn, transform.rotation);
+    }
+
     private void Knockback(Vector2 direction)
     {
         rb.velocity = direction * knockbackIntensity;
 
         inputLockTimer = knockbackDuration;
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+        health = 0;
+        SceneManager.LoadScene("GameScene");
     }
 
     public int GetHealth()

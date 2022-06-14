@@ -10,50 +10,74 @@ public class AntPatrol : MonoBehaviour
     [SerializeField] private float      probeRadius = 5;
     [SerializeField] private LayerMask  probeMask;
     [SerializeField] private int        damage = 1;
-    [SerializeField] private int        maxHealth = 1;
+    [SerializeField] private int        maxHealth = 2;
     [SerializeField] private GameObject deathEffectPrefab;
     [SerializeField] private IntValue   scoreValue;
-
-    private Rigidbody2D rb;
-    private float       dirX = 1;
-    private int         health;
+    [SerializeField] private AudioClip  hurtSound;
+    [SerializeField] private float      stunTime = 5;
+    [SerializeField] private Vector3    currentVelocity;
+    [SerializeField] private Animator        animEffect;
+    [SerializeField] private float           dirX = 1;
+    
+    private Transform       tf;
+    private Rigidbody2D     rb;
+    private int             health;
+    private bool            isStunned = false;
+    private float           stunTimer;
 
     void Start()
     {
+        animEffect.gameObject.SetActive(false);
+        tf = GetComponent<Transform>();
         rb = GetComponent<Rigidbody2D>();
         health = maxHealth;
     }
 
     void Update()
     {
-        Vector3 currentVelocity = rb.velocity;
+        currentVelocity = rb.velocity;
 
-        Collider2D collider = Physics2D.OverlapCircle(wallProbe.position, probeRadius, probeMask);
-        if (collider != null)
+        if (stunTimer > 0)
         {
-            currentVelocity = SwitchDirection(currentVelocity);
+            stunTimer -= Time.deltaTime;
+            currentVelocity.x = 0;
+            rb.velocity = currentVelocity;
+            return;
+
         }
-        else
+        if (stunTimer <= 0) 
         {
-            collider = Physics2D.OverlapCircle(groundProbe.position, probeRadius, probeMask);
+            isStunned = false;
 
-            if (collider == null)
+            animEffect.gameObject.SetActive(false);
+
+            Collider2D collider = Physics2D.OverlapCircle(wallProbe.position, probeRadius, probeMask);
+            if (collider != null)
             {
                 currentVelocity = SwitchDirection(currentVelocity);
             }
-        }
+            else
+            {
+                collider = Physics2D.OverlapCircle(groundProbe.position, probeRadius, probeMask);
 
-        currentVelocity.x = speed * dirX;
+                if (collider == null)
+                {
+                    currentVelocity = SwitchDirection(currentVelocity);
+                }
+            }
 
-        rb.velocity = currentVelocity;
+            currentVelocity.x = speed * dirX;
 
-        if ((currentVelocity.x > 0) && (transform.right.x < 0))
-        {
-            transform.rotation = Quaternion.identity;
-        }
-        else if ((currentVelocity.x < 0) && (transform.right.x > 0))
-        {
-            transform.rotation = Quaternion.Euler(0, 180, 0);
+            rb.velocity = currentVelocity;
+
+            if ((currentVelocity.x > 0) && (transform.right.x > 0))
+            {
+                transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
+            else if ((currentVelocity.x < 0) && (transform.right.x < 0))
+            {
+                transform.rotation = Quaternion.identity;
+            }
         }
     }
 
@@ -76,7 +100,7 @@ public class AntPatrol : MonoBehaviour
         {
             
             Rigidbody2D playerRB = player.GetComponent<Rigidbody2D>();
-            //DealDamage(1);
+            
 
             player.DealDamage(damage, transform);
         }
@@ -84,24 +108,33 @@ public class AntPatrol : MonoBehaviour
 
     public void DealDamage(int damage)
     {
-        health = health - damage;
 
-        Debug.Log($"Ouch Enemy, health={health}");
+        if (isStunned == false)
+        {
+            health = health - damage;
+
+            Debug.Log($"Ouch Enemy, health={health}");
+
+            isStunned = true;
+
+            stunTimer = stunTime;
+
+            animEffect.gameObject.SetActive(true);
+            
+        }
+
 
         if (health <= 0)
         {
-            Destroy(gameObject);
+            SoundManager.Get().Play(hurtSound, transform.position);
+            transform.position = new Vector3(transform.position.x, transform.position.y + 15, transform.position.z);
+            health = maxHealth;
 
-            scoreValue.ChangeValue(10);
 
-            if (deathEffectPrefab != null)
+            /*if (deathEffectPrefab != null)
             {
                 Instantiate(deathEffectPrefab, transform.position, transform.rotation);
-            }
-        }
-        else
-        {
-
+            }*/
         }
     }
 

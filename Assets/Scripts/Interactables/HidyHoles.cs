@@ -22,14 +22,20 @@ public class HidyHoles : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collider)
     {
         var player = collider.attachedRigidbody.GetComponent<Player>();
-        canDo = true;
-        player.UpdateHide(canDo);
+        if (player)
+        {
+            canDo = true;
+            player.UpdateHide(canDo);
+        }
     }
     private void OnTriggerExit2D(Collider2D collider)
     {
         canDo = false;
         var player = collider.attachedRigidbody.GetComponent<Player>();
-        player.UpdateHide(canDo);
+        if (player)
+        {
+            player.UpdateHide(canDo);
+        }
     }
 
 }
